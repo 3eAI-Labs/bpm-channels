@@ -115,7 +115,8 @@ than accumulating in a corner.
 </dependency>
 ```
 
-Apache-2.0, on Maven Central, GPG-signed.
+Releases through 0.8.1: Apache-2.0, on Maven Central, GPG-signed. From 0.10.0: source-available
+under the BSL 1.1, build from source.
 
 📖 [White paper](../WHITE_PAPER.md) · [Architecture overview](../ARCHITECTURE_OVERVIEW.md) ·
 [User Guide](../user/USER_GUIDE.md) · [GitHub](https://github.com/3eAI-Labs/nats-bpm-channels)

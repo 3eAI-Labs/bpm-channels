@@ -1,6 +1,6 @@
 # Architecture Overview
 
-**nats-bpm-channels 0.8.0** · Apache License 2.0 · 3eAI Labs Ltd
+**nats-bpm-channels** · Written for 0.8.0 — the 0.10.0–0.13.0 additions (Flowable external-worker dispatch, declarative event definitions, instance sharding, asynchronous publishers) are documented in the [User Guide](user/USER_GUIDE.md) · Licensing changed in 0.10.0 (BSL 1.1; Apache 2.0 through 0.8.1) · 3eAI Labs Ltd
 
 ---
 

@@ -114,13 +114,13 @@ What is measured, under real infrastructure:
 
 | | |
 |---|---|
-| Test suite | **1,416 tests**, real Testcontainers and fault injection (default `mvn verify` run) |
+| Test suite | **1,988 tests** (0.13.0), real Testcontainers and fault injection (default `mvn verify` run) |
 | Audit-critical loss on relay failover | **RPO = 0** — three competing relay instances race for one real JetStream KV lease, the leader is killed mid-flight, the successor drains every seeded row |
 | Leader-lease split-brain | **0** (N-candidate race, real KV compare-and-swap) |
 | Recovery time | **≈ lease TTL** — measured 60.4 s against a 60 s TTL |
 
 The three failover rows come from a suite tagged `reliability` / `bench` that is excluded from the
-default run and from CI, so they are not inside the 1,416. Two things they do not say: the test
+default run and from CI, so they are not inside the 1,988. Two things they do not say: the test
 broker is a single node with a one-replica lease bucket, so this is the application-level lease and
 outbox contract rather than broker replication; and recovery is TTL-driven, so 60 s is a floor —
 a standby cannot see the key free any sooner — not a ceiling with headroom.

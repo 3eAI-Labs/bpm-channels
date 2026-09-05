@@ -2,7 +2,7 @@
 
 **A NATS.io messaging and offload layer for open-source BPM engines**
 
-3eAI Labs Ltd · Version 0.7.0 · July 2026 · Apache License 2.0
+3eAI Labs Ltd · Written for version 0.7.0, July 2026 · Licensing changed in 0.10.0 — see section 8
 
 ---
 
@@ -20,8 +20,8 @@ and on Flowable. These are the engines teams already run, already know, and are 
 replace.
 
 `nats-bpm-channels` addresses both. It gives four open-source engines a shared NATS.io messaging
-layer at zero licence cost — and, more consequentially, it moves four categories of high-volume
-work off the engine's database transaction. Four increments have shipped: external task dispatch,
+layer — and, more consequentially, it moves four categories of high-volume work off the engine's
+database transaction. Four increments have shipped: external task dispatch,
 history events, large variable payloads and outbound message delivery. All of it is built on the
 engines' public extension points; no engine is forked or patched.
 
@@ -285,15 +285,15 @@ We distinguish between what has been measured and what has not.
 
 | Property | Result | How | Suite |
 |---|---|---|---|
-| Test suite | **1,416 tests**, all passing | Real Testcontainers (PostgreSQL, NATS), fault injection | default |
-| Line coverage, production modules | **≥ 90% each; 93.0% weighted** | JaCoCo; branch coverage 80.4% | default |
+| Test suite | **1,988 tests**, all passing (0.13.0, measured 2026-08-25) | Real Testcontainers (PostgreSQL, NATS), fault injection | default |
+| Line coverage, production modules | **≥ 90% each; 93.0% weighted** (measured at 0.5.1) | JaCoCo; branch coverage 80.4% | default |
 | Audit-critical data loss on relay failover | **RPO = 0** | Three competing relay instances race for one real JetStream KV lease; leader killed mid-flight, successor drains every seeded row | `bench` |
 | Recovery time on relay failover | **≈ lease TTL**, measured 60.4 s against a 60 s TTL | TTL-expiry-driven handover — see the note below | `bench` |
 | Leader-lease split-brain | **0** | N-candidate race against real KV compare-and-swap; single winner | `reliability` |
 | Custody transfer under broker failure | Verified | Real broker restart | `reliability` |
 
 The `reliability` and `bench` suites are excluded from the default `mvn verify` run and from CI, so
-their results are **not** part of the 1,416 figure. Run them explicitly with
+their results are **not** part of the 1,988 figure. Run them explicitly with
 `-Dreliability.excludedGroups=` and `-Dbench.excludedGroups=`.
 
 Two limits on how those failover numbers should be read:
@@ -328,7 +328,9 @@ that is what it is there for.
 
 ## 7. Getting started
 
-All artifacts are published to Maven Central under `com.3eai-labs` and are GPG-signed.
+Releases through 0.8.1 (Apache 2.0) are on Maven Central under `com.3eai-labs`, GPG-signed. From
+0.10.0 the project is source-available under the BSL 1.1: build from source with `mvn install` on
+Java 21 for development and testing; production use requires the commercial license.
 
 ```xml
 <dependency>
@@ -366,8 +368,8 @@ See the [User Guide](user/USER_GUIDE.md) and [Quick Start](user/QUICK_START.md).
 ## 8. About
 
 3eAI Labs Ltd is a UK company working on telecommunications and process orchestration systems.
-`nats-bpm-channels` is developed in the open under the Apache License 2.0 and is used in production
-in the company's own systems.
+`nats-bpm-channels` is developed with its full source public — Apache License 2.0 through 0.8.1,
+Business Source License 1.1 from 0.10.0 — and is used in production in the company's own systems.
 
 Repository: <https://github.com/3eAI-Labs/nats-bpm-channels>
 Contact: oss@3eai-labs.com

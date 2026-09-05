@@ -1,6 +1,6 @@
 # Solution Brief — Financial Services
 
-**nats-bpm-channels 0.7.0** · Apache License 2.0 · 3eAI Labs Ltd
+**nats-bpm-channels** · Written for 0.7.0; licensing changed in 0.10.0 (BSL 1.1, Apache 2.0 through 0.8.1) · 3eAI Labs Ltd
 
 ---
 
@@ -157,14 +157,15 @@ Financial institutions run on-premise, segregate networks, and change infrastruc
   security updates apply normally
 - **Workers are language-agnostic** — a Java integration adapter, a Go reconciliation worker, a
   Python reporting job, all speaking plain NATS with no engine SDK
-- **Apache-2.0 throughout** — engine, broker, client and this library; no licence renegotiation, no
-  per-instance metering, no feature gating
+- **Open stack** — engine, broker and client are Apache-2.0; this library is source-available under
+  the BSL 1.1: free for development and testing, a commercial license for production, and every
+  release converts to Apache 2.0 four years after publication. No telemetry, no licence server
 
-Reliability evidence: 1,416 tests against real PostgreSQL and NATS with fault injection in the
+Reliability evidence: 1,988 tests (0.13.0) against real PostgreSQL and NATS with fault injection in the
 default `mvn verify` run, ≥ 90% line coverage on every production module, and the failover results
 quoted above measured against real infrastructure rather than mocks — in a separate suite tagged
 `reliability` / `bench` that is excluded from the default run and from CI, so it is not counted in
-the 1,416.
+the 1,988.
 
 ---
 
@@ -196,7 +197,7 @@ can be measured rather than argued.
 </dependency>
 ```
 
-On Maven Central under `com.3eai-labs`, GPG-signed, Apache-2.0. Supported engines: Flowable 7.x,
+Releases through 0.8.1 are on Maven Central under `com.3eai-labs`, GPG-signed, Apache-2.0; from 0.10.0 build from source (BSL 1.1). Supported engines: Flowable 7.x,
 Camunda 7.x, CIBSeven 2.x, CadenzaFlow 1.x.
 
 For most institutions the first capability worth adopting is outbound handoff — it addresses a

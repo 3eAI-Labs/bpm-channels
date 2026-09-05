@@ -128,7 +128,8 @@ Add the adapter for your engine, set `spring.nats.url`, declare a subscription. 
 capabilities are separate and opt-in — you do not adopt them by accident, and you do not need them
 to get value from the messaging layer.
 
-Everything is on Maven Central under `com.3eai-labs`, GPG-signed, Apache-2.0.
+Releases through 0.8.1 are on Maven Central under `com.3eai-labs`, GPG-signed, Apache-2.0; from
+0.10.0 the project is source-available under the BSL 1.1 — build from source.
 
 📖 [Quick Start](../user/QUICK_START.md) · [User Guide](../user/USER_GUIDE.md) ·
 [GitHub](https://github.com/3eAI-Labs/nats-bpm-channels)

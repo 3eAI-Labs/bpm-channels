@@ -2,11 +2,11 @@
 
 **nats-bpm-channels** — NATS.io messaging for open-source BPM engines.
 
-Applies to version **0.10.0**. Releases up to **0.8.1** (Apache 2.0) are on Maven Central
+Applies to version **0.13.0**. Releases up to **0.8.1** (Apache 2.0) are on Maven Central
 under `com.3eai-labs`; from 0.10.0 the project is source-available (BSL 1.1) — build from
 source for development and testing; production artifacts ship with the commercial license.
 Dependency snippets below pin 0.8.0, the last Maven Central release, and apply unchanged
-to source-built 0.10.0 artifacts.
+to source-built 0.10.0 and later artifacts — change the version only.
 
 ---
 
@@ -651,7 +651,10 @@ start.
 
 ## License
 
-Apache License 2.0. Copyright 2026 [3eAI Labs Ltd](https://3eai-labs.com).
+Business Source License 1.1 from 0.10.0 — free for development, testing and evaluation; production
+use requires a commercial license; each release converts to the Apache License 2.0 four years after
+its publication. Releases through 0.8.1: Apache License 2.0. Copyright 2026
+[3eAI Labs Ltd](https://3eai-labs.com).
 
 ## Flowable external-worker dispatch (0.10.0)
 

@@ -78,8 +78,8 @@ Security vulnerabilities do **not** belong in a public issue. See [SECURITY.md](
 
 ## Licence and contributor agreement
 
-This project is released under the [Apache License 2.0](LICENSE), and every contribution is
-published under that licence.
+This project is released under the [Business Source License 1.1](LICENSE) — releases through 0.8.1
+were Apache License 2.0 — and every contribution is published under the project licence.
 
 Before a contribution can be merged you also have to accept the
 [3eAI Labs Contributor Licence Agreement](CLA.md). You keep the copyright in what you write; the

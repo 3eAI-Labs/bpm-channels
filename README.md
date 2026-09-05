@@ -31,8 +31,8 @@ A large installed base runs BPMN on the Camunda 7 lineage and on Flowable. Those
 durable because they persist through a relational database — and past a certain load, that database
 is the ceiling rather than the engine.
 
-This project gives those engines a shared messaging layer built on [NATS.io](https://nats.io), under
-Apache 2.0:
+This project gives those engines a shared messaging layer built on [NATS.io](https://nats.io) —
+source-available under the BSL 1.1 since 0.10.0, Apache 2.0 through 0.8.1:
 
 - **Flowable** — Apache 2.0, full BPMN/CMMN/DMN; integrates through the Event Registry channel
 - **Camunda 7** — a shared NATS layer built on the engine's public extension points
@@ -68,11 +68,19 @@ the engine database.
 
 See the [User Guide](docs/user/USER_GUIDE.md) for configuration of each.
 
-**Flowable has none of the four offload paths above.** It ships the messaging foundation — Event
-Registry channels, JetStream delivery and the DLQ — and its outbound publishing routes failures to a
-DLQ rather than going through a transactional outbox, so it does not carry the at-least-once
-guarantee the Camunda-lineage adapters do. Bringing Flowable to parity is on the
-[roadmap](#roadmap).
+**Flowable carries one of the four offload paths.** Since 0.10.0, `flowable:type="external-worker"`
+jobs are push-dispatched over JetStream (`spring.nats.flowable.external-worker`) instead of being
+polled — the Flowable counterpart of external task dispatch. History offload, large variable
+externalization and the transactional outbox are not implemented for Flowable: its outbound
+publishing routes failures to a DLQ rather than going through an outbox, so it does not carry the
+at-least-once guarantee the Camunda-lineage adapters do. Full parity is on the [roadmap](#roadmap).
+
+### Fleet operation
+
+- **Startup topology self-check** (0.10.0, all engines) — each adapter compares the live broker against what multi-node operation requires and logs one WARN per finding with a stable code; it reports, never repairs, and never fails a boot
+- **Declarative event and channel definitions** (`spring.nats.<engine>.eventing`, 0.11.0, Camunda lineage) — a portable JSON subset of Flowable's `.event`/`.channel` formats deploys through the engine's own deployment API, so one definition format describes NATS wiring on all four engines
+- **Instance sharding** (`spring.nats.<engine>.sharding`, 0.12.0, Camunda lineage) — N independent engine+database pairs behave as one system: a frozen businessKey hash gives every process instance a home shard, a stateless router forwards external messages to the owner, job replies come home by envelope address, and a birth guard plus a hard boot validator enforce the topology. Off by default; never-activated installations behave exactly as before
+- **Asynchronous post-commit publishers** (0.13.0) — every post-commit publish goes through a bounded in-flight publisher; delivery guarantees and recovery contracts are unchanged, and `<prefix>.async-publish=false` restores the synchronous path for any family
 
 ## Requirements
 
@@ -410,9 +418,15 @@ await nc.subscribe("task.send-sms", queue="sms-workers", cb=handler)
 | Large variable externalization | v0.4.0 | :white_check_mark: Complete |
 | Outbound handoff (dual-write safe) | v0.5.0 | :white_check_mark: Complete |
 | CIBSeven adapter | v0.6.0 | :white_check_mark: Complete |
-| Published to Maven Central | v0.7.0 | :white_check_mark: Complete |
-| Flowable database-offload parity | | :crystal_ball: Planned |
-| Sharding | | :crystal_ball: Planned |
+| Published to Maven Central | v0.7.0 | :white_check_mark: Complete — Apache-era releases through 0.8.1; from 0.10.0 releases ship from this repository under the BSL 1.1 |
+| Multi-node engine deployments | v0.8.1 | :white_check_mark: Complete |
+| Flowable external-worker dispatch over JetStream | v0.10.0 | :white_check_mark: Complete |
+| Startup topology self-check | v0.10.0 | :white_check_mark: Complete |
+| Declarative event/channel definitions (Camunda lineage) | v0.11.0 | :white_check_mark: Complete |
+| Instance sharding, single fleet (Camunda lineage) | v0.12.0 | :white_check_mark: Complete |
+| Asynchronous post-commit publishers | v0.13.0 | :white_check_mark: Complete |
+| Flowable history, large-variable and outbox offload parity | | :crystal_ball: Planned |
+| Fleet growth / re-sharding procedure | | :crystal_ball: Planned, on demand |
 | NATS-native execution core | | :crystal_ball: Planned |
 
 ## Documentation
@@ -422,7 +436,7 @@ await nc.subscribe("task.send-sms", queue="sms-workers", cb=handler)
 | | |
 |---|---|
 | [Quick Start](docs/user/QUICK_START.md) | One page — install, connect, receive a message, durable delivery, external workers |
-| [User Guide](docs/user/USER_GUIDE.md) | Full reference: every capability with examples, all 59 configuration properties with types and defaults, troubleshooting, FAQ |
+| [User Guide](docs/user/USER_GUIDE.md) | Full reference: every capability with examples, every configuration property with types and defaults, troubleshooting, FAQ |
 
 **Understanding it**
 

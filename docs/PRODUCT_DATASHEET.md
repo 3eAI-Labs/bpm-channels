@@ -1,7 +1,7 @@
 # Product Datasheet
 
-**nats-bpm-channels 0.8.0** · NATS.io messaging and database offload for open-source BPM engines
-Apache License 2.0 · 3eAI Labs Ltd · Maven Central namespace `com.3eai-labs`
+**nats-bpm-channels 0.13.0** · NATS.io messaging and database offload for open-source BPM engines
+Business Source License 1.1 (Apache 2.0 through 0.8.1) · 3eAI Labs Ltd · Maven Central namespace `com.3eai-labs` (Apache-era releases)
 
 ---
 
@@ -16,7 +16,7 @@ paths are off until switched on, so adding the library for one of them does not 
 
 ## Artifacts
 
-| Artifact | Purpose | Maven Central |
+| Artifact | Purpose | On Maven Central (through 0.8.1) |
 |---|---|---|
 | `com.3eai-labs:nats-channel-parent` | Dependency and plugin management (pom) | Yes |
 | `com.3eai-labs:nats-core` | Connection, auth, TLS, JetStream management, metrics, headers | Yes |
@@ -24,10 +24,14 @@ paths are off until switched on, so adding the library for one of them does not 
 | `com.3eai-labs:camunda-nats-channel` | Camunda 7.x adapter | Yes |
 | `com.3eai-labs:cibseven-nats-channel` | CIBSeven 2.x adapter | Yes |
 | `com.3eai-labs:nats-history-projection` | History projection, retention, erasure, reconciliation | Yes |
-| `com.3eai-labs:cadenzaflow-nats-channel` | CadenzaFlow 1.x adapter | No — build from source |
+| `com.3eai-labs:cadenzaflow-nats-channel` | CadenzaFlow 1.x adapter | Yes (from 0.8.0) |
 
 All published artifacts ship `.jar`, `-sources.jar`, `-javadoc.jar` and `.pom`, each GPG-signed.
 Signing key `E610505884534DB9` (`oss@3eai-labs.com`) is on `keyserver.ubuntu.com`.
+
+Releases from 0.10.0 are not published to Maven Central: build from source with `mvn install` on
+Java 21 (free for development and testing under the BSL 1.1); production artifacts ship with the
+commercial license.
 
 ---
 
@@ -48,7 +52,8 @@ Signing key `E610505884534DB9` (`oss@3eai-labs.com`) is on `keyserver.ubuntu.com
 
 ### Database offload — Camunda 7, CIBSeven and CadenzaFlow
 
-Flowable ships the messaging set above but none of these four paths; parity is on the roadmap.
+Flowable ships the messaging set above and external-worker dispatch (next table); history,
+large-variable and outbox parity is on the roadmap.
 
 | Capability | Version | Prefix | Effect |
 |---|---|---|---|
@@ -56,6 +61,18 @@ Flowable ships the messaging set above but none of these four paths; parity is o
 | History offload | v0.3.0 | `spring.nats.<engine>.history` | `ACT_HI_*` traffic is published to NATS and projected into a separate PostgreSQL database; it leaves the engine database per history class, after that class is cut over |
 | Large variable externalisation | v0.4.0 | `history.large-variable` | Variables above threshold move to a content-addressed store with SHA-256 dedup and reference counting |
 | Outbound handoff | v0.5.0 | `spring.nats.outbound` | Dual-write-safe delivery of message-throw and send-task |
+
+### Dispatch, definitions and fleet topology — 0.10.0 to 0.13.0
+
+| Capability | Version | Engines | Prefix | Effect |
+|---|---|---|---|---|
+| Flowable external-worker dispatch over JetStream | v0.10.0 | Flowable | `spring.nats.flowable.external-worker` | `flowable:type="external-worker"` jobs are push-dispatched post-commit; the polling `acquireAndLock` loop is replaced |
+| Startup topology self-check | v0.10.0 | All | — | Boot-time comparison of the live broker against multi-node requirements; one WARN per finding with a stable code; reports, never repairs |
+| Declarative event/channel definitions | v0.11.0 | Camunda lineage | `spring.nats.<engine>.eventing` | Portable JSON subset of Flowable's `.event`/`.channel` formats, deployed through the engine's own deployment API; one definition format across all four engines |
+| Instance sharding (single fleet) | v0.12.0 | Camunda lineage | `spring.nats.<engine>.sharding` | N independent engine+database pairs behind one NATS routing fabric: businessKey-hashed placement, stateless router, envelope-addressed replies, birth guard and hard boot validator; off by default |
+| Asynchronous post-commit publishers | v0.13.0 | All | `<prefix>.async-publish` | Bounded in-flight publish on every post-commit path; guarantees unchanged; `=false` restores the synchronous path per family |
+
+---
 
 ### Data governance
 
@@ -87,22 +104,24 @@ duplicates are suppressed with `Nats-Msg-Id` and idempotent complete/correlate.
 
 | Property | Result | Method | Suite |
 |---|---|---|---|
-| Test suite | 1,416 tests passing | Testcontainers (PostgreSQL, NATS) + fault injection | default |
-| Line coverage | ≥ 90% per production module, 93.0% weighted | JaCoCo; branch 80.4% | default |
+| Test suite | 1,988 tests passing (0.13.0, measured 2026-08-25) | Testcontainers (PostgreSQL, NATS) + fault injection; `mvn verify`, seven modules | default |
+| Line coverage | ≥ 90% per production module, 93.0% weighted (measured at 0.5.1; not re-measured since) | JaCoCo; branch 80.4% | default |
 | Audit-critical loss on relay failover | RPO = 0 | Three competing relay instances race for one real JetStream KV lease; successor drains every seeded row | `bench` |
 | Recovery time | ≈ lease TTL — measured 60.4 s against a 60 s TTL | TTL-expiry-driven handover; a floor, not a bound with headroom | `bench` |
 | Leader-lease split-brain | 0 | N-candidate race against real KV compare-and-swap | `reliability` |
 
 The `reliability` and `bench` suites are excluded from the default `mvn verify` run and from CI, so
-they are not counted in the 1,416 figure. The failover test exercises the application-level lease
+they are not counted in the 1,988 figure. The failover test exercises the application-level lease
 and outbox contract: the test broker is a single node and the lease bucket is created with one
 replica. Production auto-configuration provisions leader buckets with three replicas, but a
 replicated-broker failover has not been measured.
 
-**Not measured.** Throughput and latency improvement is unpublished. Target SLIs are dispatch
-p95 ≤ 200 ms, reduced connection-pool pressure and lock-wait ≈ 0. A two-mode benchmark comparing
-native polling against JetStream push is included in the repository for evaluation in your own
-environment.
+**Measured on one host, published with its scope.** Throughput ceilings, latency under overload and
+database cost against the engine's native external-task polling were measured on a single 16-vCPU
+host (100,000 process instances per cell) and are published with the 0.13.0 announcement at
+<https://3eai-labs.com/en/blog/nats-bpm-channels-0130>, together with what the method does not
+cover. Absolute values do not transfer to other hardware; directions do. The `nats-bpm-bench`
+module in the repository compares native polling against JetStream push in your own environment.
 
 ---
 
@@ -170,12 +189,13 @@ Structured logging with SLF4J `kv()` and `trace_id` in MDC.
 
 ## Configuration surface
 
-59 documented properties across these prefixes:
+Documented properties across these prefixes:
 
 `spring.nats` · `spring.nats.<engine>.subscriptions` · `spring.nats.<engine>.a2` ·
-`spring.nats.<engine>.history` · `spring.nats.outbound` · `history.projection` ·
+`spring.nats.<engine>.history` · `spring.nats.<engine>.eventing` · `spring.nats.<engine>.sharding` ·
+`spring.nats.flowable.external-worker` · `spring.nats.outbound` · `history.projection` ·
 `history.large-variable` · `history.retention` · `history.reconciliation` · `history.cutover` ·
-`history.vault.datasource`
+`history.vault.datasource` · `<prefix>.async-publish`
 
 Full reference with types and defaults: [User Guide](user/USER_GUIDE.md).
 
@@ -183,12 +203,17 @@ Full reference with types and defaults: [User Guide](user/USER_GUIDE.md).
 
 ## Licensing and support
 
-Apache License 2.0. No licence fee, no per-instance cost, no feature gating.
+Business Source License 1.1 from 0.10.0: free for development, testing and evaluation with the
+full source public; production use requires a commercial license from 3eAI Labs, which includes a
+measured proof-of-concept on your workload and a support agreement. Each release converts to the
+Apache License 2.0 four years after its publication — the cap is written into the license text.
+Releases through 0.8.1 remain Apache 2.0 on Maven Central.
 
 Commercial services from 3eAI Labs: adoption and integration consulting, NATS deployment and
 tuning, and support agreements.
 
-Repository <https://github.com/3eAI-Labs/nats-bpm-channels> · Contact `oss@3eai-labs.com`
+Repository <https://github.com/3eAI-Labs/nats-bpm-channels> · Commercial license and pilot
+<https://3eai-labs.com> · Contact `oss@3eai-labs.com`
 
 ---
 

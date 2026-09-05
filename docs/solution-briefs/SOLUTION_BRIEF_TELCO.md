@@ -1,6 +1,6 @@
 # Solution Brief — Telecommunications
 
-**nats-bpm-channels 0.7.0** · Apache License 2.0 · 3eAI Labs Ltd
+**nats-bpm-channels** · Written for 0.7.0; licensing changed in 0.10.0 (BSL 1.1, Apache 2.0 through 0.8.1) · 3eAI Labs Ltd
 
 ---
 
@@ -145,7 +145,7 @@ floor rather than a bound with headroom. That measurement covers the application
 outbox contract; the test broker is a single node, so broker replication is not part of it, though
 production auto-configuration provisions leader buckets with three replicas. These results come
 from a suite tagged `reliability` / `bench` that is excluded from the default run and from CI. The
-default suite is 1,416 tests against real PostgreSQL and NATS with fault injection.
+default suite is 1,988 tests (0.13.0) against real PostgreSQL and NATS with fault injection.
 
 ---
 
@@ -180,7 +180,7 @@ A two-mode benchmark comparing native polling against JetStream push ships in th
 </dependency>
 ```
 
-On Maven Central under `com.3eai-labs`, GPG-signed, Apache-2.0.
+Releases through 0.8.1 are on Maven Central under `com.3eai-labs`, GPG-signed, Apache-2.0; from 0.10.0 build from source (BSL 1.1).
 
 A sensible sequence: start with messaging, add history offload — usually the largest write-volume
 share and the least transactionally interesting — then evaluate the remaining capabilities against

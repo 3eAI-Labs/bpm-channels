@@ -1,6 +1,6 @@
 # Solution Brief — Public Sector
 
-**nats-bpm-channels 0.7.0** · Apache License 2.0 · 3eAI Labs Ltd
+**nats-bpm-channels** · Written for 0.7.0; licensing changed in 0.10.0 (BSL 1.1, Apache 2.0 through 0.8.1) · 3eAI Labs Ltd
 
 ---
 
@@ -138,9 +138,11 @@ deliberate and is recorded in the project's architecture decisions.
 Each is independent and opt-in. Orchestration state stays in the engine database, transactional and
 authoritative.
 
-The whole stack is Apache-2.0 — engine, broker, client and this library. There is no per-instance
-metering, no feature gating and no renewal negotiation, which matters for systems whose budget
-horizon is measured in decades. The engine is not forked, so upstream security updates apply
+Engine, broker and client are Apache-2.0. This library is source-available under the BSL 1.1: free
+for development and testing, a commercial license for production, and every release converts to
+Apache 2.0 four years after publication — a cap written into the licence text itself, which matters
+for systems whose budget horizon is measured in decades. There is no telemetry and no licence server
+in the software. The engine is not forked, so upstream security updates apply
 normally.
 
 ---
@@ -151,14 +153,14 @@ Measured against real infrastructure rather than asserted:
 
 | Property | Result | Suite |
 |---|---|---|
-| Test suite | 1,416 tests, real PostgreSQL and NATS, fault injection | default |
-| Line coverage | ≥ 90% per production module, 93.0% weighted | default |
+| Test suite | 1,988 tests (0.13.0), real PostgreSQL and NATS, fault injection | default |
+| Line coverage | ≥ 90% per production module, 93.0% weighted (measured at 0.5.1) | default |
 | Audit-critical data loss on relay failover | RPO = 0, across a leader handover between three competing relay instances contending for one real JetStream KV lease | `bench` |
 | Recovery time | ≈ lease TTL — measured 60.4 s against a 60 s TTL; TTL-driven, so a floor rather than a bound with headroom | `bench` |
 | Leader-lease split-brain | 0, under an N-candidate race against real compare-and-swap | `reliability` |
 
 The `reliability` and `bench` suites are excluded from the default `mvn verify` run and from CI, so
-they are not counted in the 1,416. The failover test covers the application-level lease and outbox
+they are not counted in the 1,988. The failover test covers the application-level lease and outbox
 contract: the test broker is a single node and the lease bucket is created with one replica.
 Production auto-configuration provisions leader buckets with three replicas, but a
 replicated-broker failover has not been measured.
@@ -196,7 +198,7 @@ can be measured in your own environment rather than argued from a slide.
 </dependency>
 ```
 
-On Maven Central under `com.3eai-labs`, GPG-signed, Apache-2.0. Supported engines: Flowable 7.x,
+Releases through 0.8.1 are on Maven Central under `com.3eai-labs`, GPG-signed, Apache-2.0; from 0.10.0 build from source (BSL 1.1). Supported engines: Flowable 7.x,
 Camunda 7.x, CIBSeven 2.x, CadenzaFlow 1.x. Artifacts can be mirrored into an internal repository
 for isolated environments.
 
